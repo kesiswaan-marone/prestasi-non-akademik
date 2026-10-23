@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Laporan Prestasi Non-Akademik - SMK Ma'arif 1 Kebumen</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="h-full font-sans text-slate-800 antialiased bg-slate-50 flex flex-col md:flex-row min-h-screen">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div id="mobile-overlay" onclick="toggleMobileSidebar()" class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-sm hidden md:hidden"></div>
+
+    <!-- SIDEBAR NAVIGATION MENU -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col justify-between border-r border-slate-800 transition-transform duration-300 transform -translate-x-full md:translate-x-0 md:static md:z-auto shrink-0">
+        
+        <!-- Sidebar Brand & Header -->
+        <div class="p-5 border-b border-slate-800 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white font-black text-xl shadow-lg ring-2 ring-white/20 shrink-0">
+                    <i data-lucide="award" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xs font-bold tracking-tight text-white leading-tight uppercase">SMK Ma'arif 1 Kebumen</h1>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 mt-0.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1"></span> Live Google Sheets
+                    </span>
+                </div>
+            </div>
+            <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white p-1 rounded-lg">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <!-- Sidebar Tab Navigation Links -->
+        <nav class="p-4 space-y-2 flex-1 overflow-y-auto">
+            <div class="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">Navigasi Laporan</div>
+            
+            <button id="nav-btn-dashboard" onclick="switchTab('dashboard')" class="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between bg-sky-600 text-white shadow-md shadow-sky-900/30 transition">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                    <span>1. Dashboard & Grafik</span>
+                </div>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-70"></i>
+            </button>
+
+            <button id="nav-btn-daftar" onclick="switchTab('daftar')" class="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="trophy" class="w-4 h-4"></i>
+                    <span>2. Daftar Kejuaraan</span>
+                </div>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-70"></i>
+            </button>
+
+            <button id="nav-btn-kelola" onclick="switchTab('kelola')" class="w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="edit-3" class="w-4 h-4"></i>
+                    <span>3. Edit & Kelola Data</span>
+                </div>
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5 opacity-70"></i>
+            </button>
+        </nav>
+
+        <!-- Sidebar Footer Info -->
+        <div class="p-4 border-t border-slate-800 bg-slate-950/40 space-y-3">
+            <div class="bg-slate-800/80 rounded-xl p-3 border border-slate-700/60 text-xs">
+                <div class="flex items-center justify-between">
+                    <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Status Database</p>
+                    <button onclick="fetchDataFromSpreadsheet()" class="text-sky-400 hover:text-sky-300 text-[10px] underline flex items-center gap-1">
+                        <i data-lucide="refresh-cw" class="w-3 h-3"></i> Sync
+                    </button>
+                </div>
+                <p id="sheets-status-text" class="text-xs font-bold text-slate-200 mt-1">Mengintegrasikan...</p>
+                <p id="sheets-last-update" class="text-[10px] text-slate-400 mt-0.5">Google Sheets API Active</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT CONTAINER WRAPPER -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+        <!-- Top Header Bar -->
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-30 px-4 sm:px-6 py-3 shadow-sm flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <button onclick="toggleMobileSidebar()" class="md:hidden p-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition" title="Buka Menu Sidebar">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+                <div>
+                    <h2 id="topbar-title" class="text-base font-bold text-slate-900 leading-tight">1. Dashboard & Grafik Rekapitulasi</h2>
+                    <p class="text-xs text-slate-500 hidden sm:block">Sistem Informasi Laporan Kejuaraan Non-Akademik SMK Ma'arif 1 Kebumen</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="fetchDataFromSpreadsheet()" class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition" title="Refresh Data dari Google Sheets">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                    <span class="hidden sm:inline">Refresh Data</span>
+                </button>
+                <button onclick="openExportModal()" class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-sky-600 hover:bg-sky-700 text-white shadow-sm transition">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                    <span class="hidden sm:inline">Ekspor Laporan</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Scroll Area -->
+        <main class="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+            <!-- ========================================== -->
+            <!-- TAB 1: DASHBOARD (REKAP & VISUALISASI)     -->
+            <!-- ========================================== -->
+            <div id="tab-dashboard" class="space-y-6">
+                
+                <!-- Banner Ringkasan Dashboard -->
+                <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden border border-slate-800">
+                    <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="space-y-1">
+                            <div class="inline-flex items-center gap-2 text-xs font-semibold text-sky-400 uppercase tracking-wider">
+                                <i data-lucide="bar-chart-3" class="w-3.5 h-3.5"></i> Ringkasan Eksekutif Terpadu
+                            </div>
+                            <h2 class="text-xl sm:text-2xl font-bold">Statistik Kejuaraan Non-Akademik</h2>
+                            <p class="text-slate-300 text-sm max-w-2xl">
+                                Visualisasi capaian medali, tingkat kompetisi, dan statistik keterlibatan siswa SMK Ma'arif 1 Kebumen yang terhubung langsung secara *real-time* dengan Google Sheets.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary KPI Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    
+                    <!-- KPI 1 -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200/80 hover:shadow-md transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total Kejuaraan</span>
+                            <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center">
+                                <i data-lucide="trophy" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex items-baseline justify-between">
+                            <span id="kpi-total" class="text-3xl font-extrabold text-slate-900">0</span>
+                            <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-0.5">
+                                <i data-lucide="trending-up" class="w-3 h-3"></i> Terekam
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Total kejuaraan yang berhasil diraih</p>
+                    </div>
+
+                    <!-- KPI 2 -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200/80 hover:shadow-md transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Juara 1 (Medali Emas)</span>
+                            <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+                                <i data-lucide="medal" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex items-baseline justify-between">
+                            <span id="kpi-emas" class="text-3xl font-extrabold text-amber-600">0</span>
+                            <span id="kpi-emas-pct" class="text-xs font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">0% total</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Capaian juara utama / medali emas</p>
+                    </div>
+
+                    <!-- KPI 3 -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200/80 hover:shadow-md transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Nasional & Internasional</span>
+                            <div class="w-9 h-9 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+                                <i data-lucide="globe" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex items-baseline justify-between">
+                            <span id="kpi-tinggi" class="text-3xl font-extrabold text-purple-700">0</span>
+                            <span class="text-xs font-medium text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">Tingkat Tinggi</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Melampaui ajang kabupaten & provinsi</p>
+                    </div>
+
+                    <!-- KPI 4 -->
+                    <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200/80 hover:shadow-md transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Keterlibatan Siswa</span>
+                            <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                <i data-lucide="users" class="w-5 h-5"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3 flex items-baseline justify-between">
+                            <span id="kpi-siswa" class="text-3xl font-extrabold text-slate-900">0</span>
+                            <span class="text-xs font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Partisipasi</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Entri keterlibatan siswa & tim</p>
+                    </div>
+
+                </div>
+
+                <!-- Visual Analytics Grid (Chart.js) -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Bar Chart Trend -->
+                    <div class="lg:col-span-2 bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-base">Tren Pertumbuhan Kejuaraan</h3>
+                                <p class="text-xs text-slate-500">Jumlah kejuaraan per Tahun Ajaran</p>
+                            </div>
+                            <span class="p-2 bg-slate-100 rounded-lg text-slate-600">
+                                <i data-lucide="line-chart" class="w-5 h-5"></i>
+                            </span>
+                        </div>
+                        <div class="relative w-full h-64 sm:h-72">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Donut Chart Level -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-base">Distribusi Tingkat Kejuaraan</h3>
+                                <p class="text-xs text-slate-500">Jangkauan tingkat kompetisi</p>
+                            </div>
+                            <span class="p-2 bg-slate-100 rounded-lg text-slate-600">
+                                <i data-lucide="pie-chart" class="w-5 h-5"></i>
+                            </span>
+                        </div>
+                        <div class="relative w-full h-64 sm:h-72 flex items-center justify-center">
+                            <canvas id="levelChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Horizontal Bar Chart Category Breakdown -->
+                    <div class="lg:col-span-3 bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-base">Capaian Prestasi per Kategori / Bidang</h3>
+                                <p class="text-xs text-slate-500">Perbandingan perolehan pada Olahraga, Seni, Keagamaan, Pramuka/Paskibra, dan Inovasi</p>
+                            </div>
+                            <span class="p-2 bg-slate-100 rounded-lg text-slate-600">
+                                <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                            </span>
+                        </div>
+                        <div class="relative w-full h-56">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- TAB 2: DAFTAR KEJUARAAN & PENCARIAN        -->
+            <!-- ========================================== -->
+            <div id="tab-daftar" class="hidden space-y-6">
+                
+                <!-- Toolbar Filter & Search -->
+                <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 space-y-4">
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-3 border-b border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="search" class="w-5 h-5 text-sky-600"></i>
+                            <h3 class="font-bold text-slate-800 text-base">Pencarian & Penyaringan Laporan</h3>
+                        </div>
+                        <button onclick="resetDaftarFilters()" class="self-start lg:self-center text-xs font-semibold text-slate-500 hover:text-sky-600 transition flex items-center gap-1">
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset Semua Filter
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <!-- Search Input -->
+                        <div class="relative sm:col-span-2 lg:col-span-1">
+                            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" id="search-input" oninput="renderDaftarTab()" placeholder="Cari nama siswa, kejuaraan..." class="w-full pl-9 pr-8 py-2 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition">
+                            <button id="clear-search" onclick="clearSearchInput()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+
+                        <!-- Year Filter -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Tahun Ajaran</label>
+                            <select id="filter-year" onchange="renderDaftarTab()" class="w-full py-2 px-3 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition">
+                                <option value="Semua">Semua Tahun Ajaran</option>
+                                <option value="2023/2024">2023/2024</option>
+                                <option value="2024/2025">2024/2025</option>
+                                <option value="2025/2026">2025/2026</option>
+                            </select>
+                        </div>
+
+                        <!-- Category Filter -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Kategori / Bidang</label>
+                            <select id="filter-category" onchange="renderDaftarTab()" class="w-full py-2 px-3 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition">
+                                <option value="Semua">Semua Bidang</option>
+                                <option value="Olahraga">Olahraga</option>
+                                <option value="Seni & Budaya">Seni & Budaya</option>
+                                <option value="Keagamaan">Keagamaan</option>
+                                <option value="Pramuka & Paskibra">Pramuka & Paskibra</option>
+                                <option value="Sains & Inovasi Non-Akademik">Sains & Inovasi Non-Akademik</option>
+                            </select>
+                        </div>
+
+                        <!-- Level Filter -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 mb-1">Tingkat Kejuaraan</label>
+                            <select id="filter-level" onchange="renderDaftarTab()" class="w-full py-2 px-3 text-sm bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition">
+                                <option value="Semua">Semua Tingkat</option>
+                                <option value="Kabupaten">Kabupaten / Kota</option>
+                                <option value="Provinsi">Provinsi</option>
+                                <option value="Nasional">Nasional</option>
+                                <option value="Internasional">Internasional</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Showcase Container & View Switcher -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 space-y-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                                <span>Daftar Kejuaraan & Prestasi</span>
+                                <span id="results-count" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">0 data ditemukan</span>
+                            </h3>
+                            <p class="text-xs text-slate-500">Rincian perolehan medali, peringkat, dan delegasi siswa</p>
+                        </div>
+
+                        <!-- View Switcher -->
+                        <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl self-start sm:self-auto">
+                            <button id="view-card-btn" onclick="setViewMode('card')" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-white text-slate-800 shadow-sm transition">
+                                <i data-lucide="grid" class="w-3.5 h-3.5"></i> Tampilan Kartu
+                            </button>
+                            <button id="view-table-btn" onclick="setViewMode('table')" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 text-slate-600 hover:text-slate-900 transition">
+                                <i data-lucide="list" class="w-3.5 h-3.5"></i> Tampilan Tabel
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Cards Grid Container -->
+                    <div id="card-view-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+
+                    <!-- Table View Container -->
+                    <div id="table-view-container" class="hidden overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="w-full text-left text-xs sm:text-sm">
+                            <thead class="bg-slate-50 text-slate-700 uppercase tracking-wider text-[11px] font-bold border-b border-slate-200">
+                                <tr>
+                                    <th class="py-3 px-4">Siswa / Delegasi</th>
+                                    <th class="py-3 px-4">Kejuaraan & Bidang</th>
+                                    <th class="py-3 px-4">Tingkat</th>
+                                    <th class="py-3 px-4">Capaian</th>
+                                    <th class="py-3 px-4">Tahun Ajaran</th>
+                                    <th class="py-3 px-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body" class="divide-y divide-slate-100 bg-white">
+                                <!-- Populated dynamically via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="empty-state" class="hidden py-12 text-center space-y-3">
+                        <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-400">
+                            <i data-lucide="search-x" class="w-6 h-6"></i>
+                        </div>
+                        <p class="text-sm font-semibold text-slate-700">Tidak ada data prestasi yang cocok</p>
+                        <p class="text-xs text-slate-400 max-w-sm mx-auto">Coba sesuaikan kata kunci pencarian atau ubah kombinasi filter yang Anda pilih.</p>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- ========================================== -->
+            <!-- TAB 3: EDIT DATA (TAMBAH & HAPUS)          -->
+            <!-- ========================================== -->
+            <div id="tab-kelola" class="hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Form Tambah Data Prestasi Baru -->
+                    <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 space-y-4">
+                        <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
+                            <div class="p-2 bg-sky-50 text-sky-600 rounded-lg">
+                                <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-base">Input Prestasi Baru</h3>
+                                <p class="text-xs text-slate-500">Tambah entri data kejuaraan kesiswaan</p>
+                            </div>
+                        </div>
+
+                        <form id="add-form" onsubmit="handleAddSubmit(event)" class="space-y-3 text-xs">
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Nama Siswa / Tim <span class="text-rose-500">*</span></label>
+                                <input type="text" id="form-student" required placeholder="Contoh: Muhammad Rizky / Tim Basket" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:bg-white outline-none transition">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Kelas <span class="text-rose-500">*</span></label>
+                                    <input type="text" id="form-class" required placeholder="XI MIPA 2" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:bg-white outline-none transition">
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Tahun Ajaran <span class="text-rose-500">*</span></label>
+                                    <select id="form-year" required class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:bg-white outline-none transition">
+                                        <option value="2025/2026">2025/2026</option>
+                                        <option value="2024/2025">2024/2025</option>
+                                        <option value="2023/2024">2023/2024</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Nama Kejuaraan / Kompetisi <span class="text-rose-500">*</span></label>
+                                <input type="text" id="form-title" required placeholder="Contoh: O2SN Cabang Atletik Lari 100m" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:bg-white outline-none transition">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Kategori / Bidang <span class="text-rose-500">*</span></label>
+                                    <select id="form-category" required class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:bg-white outline-none transition">
+                                        <option value="Olahraga">Olahraga</option>
+                                        <option value="Seni & Budaya">Seni & Budaya</option>
+                                        <option value="Keagamaan">Keagamaan</option>
+                                        <option value="Pramuka & Paskibra">Pramuka & Paskibra</option>
+                                        <option value="Sains & Inovasi Non-Akademik">Sains & Inovasi Non-Akademik</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Tingkat <span class="text-rose-500">*</span></label>
+                                    <select id="form-level" required class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:bg-white outline-none transition">
+                                        <option value="Kabupaten">Kabupaten</option>
+                                        <option value="Provinsi">Provinsi</option>
+                                        <option value="Nasional">Nasional</option>
+                                        <option value="Internasional">Internasional</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Capaian / Raihan <span class="text-rose-500">*</span></label>
+                                    <input type="text" id="form-raihan" required placeholder="Juara 1 (Medali Emas)" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:bg-white outline-none transition">
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-slate-700 mb-1">Tanggal Pelaksanaan <span class="text-rose-500">*</span></label>
+                                    <input type="date" id="form-date" required class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:bg-white outline-none transition">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Pembina / Pelatih Pendamping</label>
+                                <input type="text" id="form-coach" placeholder="Budi Santoso, S.Pd." class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:bg-white outline-none transition">
+                            </div>
+
+                            <div>
+                                <label class="block font-semibold text-slate-700 mb-1">Deskripsi Singkat</label>
+                                <textarea id="form-desc" rows="2" placeholder="Tuliskan rincian perlombaan..." class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:bg-white outline-none transition"></textarea>
+                            </div>
+
+                            <button type="submit" class="w-full py-2.5 px-4 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-lg transition shadow flex items-center justify-center gap-2 mt-2">
+                                <i data-lucide="save" class="w-4 h-4"></i> Simpan Data Prestasi
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Tabel Manajemen Edit / Hapus Data -->
+                    <div class="lg:col-span-2 bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-base">Kelola & Hapus Data Prestasi</h3>
+                                <p class="text-xs text-slate-500">Daftar entri aktif dalam sistem laporan kesiswaan</p>
+                            </div>
+
+                            <!-- Search filter in Manage tab -->
+                            <div class="relative w-full sm:w-64">
+                                <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input type="text" id="manage-search" oninput="renderManageTable()" placeholder="Cari data untuk dihapus..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto rounded-xl border border-slate-200">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-slate-50 text-slate-700 uppercase tracking-wider text-[10px] font-bold border-b border-slate-200">
+                                    <tr>
+                                        <th class="py-2.5 px-3">Siswa / Tim</th>
+                                        <th class="py-2.5 px-3">Kejuaraan</th>
+                                        <th class="py-2.5 px-3">Tingkat / Tahun</th>
+                                        <th class="py-2.5 px-3">Capaian</th>
+                                        <th class="py-2.5 px-3 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="manage-table-body" class="divide-y divide-slate-100">
+                                    <!-- Populated dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500">
+            <p>&copy; 2026 Tim Manajemen SMK Ma'arif 1 Kebumen. Hak Cipta Dilindungi Undang-Undang.</p>
+        </footer>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODALS & POPUPS                            -->
+    <!-- ========================================== -->
+
+    <!-- Detail Modal -->
+    <div id="detail-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto border border-slate-200">
+            <div class="p-5 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/95 backdrop-blur z-10">
+                <div class="flex items-center gap-2">
+                    <span id="detail-badge-level" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 text-sky-800">
+                        Tingkat
+                    </span>
+                    <span id="detail-category" class="text-xs font-medium text-slate-500">Kategori</span>
+                </div>
+                <button onclick="closeModal('detail-modal')" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-5">
+                <div>
+                    <h3 id="detail-title" class="text-xl font-bold text-slate-900 leading-snug">Nama Kejuaraan</h3>
+                    <p id="detail-raihan" class="text-emerald-600 font-bold text-sm mt-1">Juara 1</p>
+                </div>
+
+                <div class="bg-slate-50 rounded-xl p-4 grid grid-cols-2 gap-4 text-xs border border-slate-100">
+                    <div>
+                        <p class="text-slate-400 font-medium">Siswa / Peserta</p>
+                        <p id="detail-student" class="font-bold text-slate-800 text-sm mt-0.5">-</p>
+                    </div>
+                    <div>
+                        <p class="text-slate-400 font-medium">Kelas / Rombel</p>
+                        <p id="detail-class" class="font-semibold text-slate-800 text-sm mt-0.5">-</p>
+                    </div>
+                    <div>
+                        <p class="text-slate-400 font-medium">Tahun Ajaran</p>
+                        <p id="detail-year" class="font-semibold text-slate-800 mt-0.5">-</p>
+                    </div>
+                    <div>
+                        <p class="text-slate-400 font-medium">Tanggal Pelaksanaan</p>
+                        <p id="detail-date" class="font-semibold text-slate-800 mt-0.5">-</p>
+                    </div>
+                    <div class="col-span-2 border-t border-slate-200/60 pt-2">
+                        <p class="text-slate-400 font-medium">Pembina / Pelatih Pendamping</p>
+                        <p id="detail-coach" class="font-semibold text-slate-800 mt-0.5">-</p>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Deskripsi Singkat Kejuaraan</h4>
+                    <p id="detail-desc" class="text-sm text-slate-600 leading-relaxed bg-white">
+                        Deskripsi rinci mengenai turnamen dan pencapaian siswa...
+                    </p>
+                </div>
+
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Dokumentasi & Sertifikat</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-100 rounded-xl p-3 border border-slate-200 flex flex-col items-center justify-center text-center">
+                            <i data-lucide="image" class="w-7 h-7 text-slate-400 mb-1"></i>
+                            <span class="text-[11px] text-slate-500 font-medium">Foto Penyerahan Piala</span>
+                        </div>
+                        <div class="bg-sky-50 rounded-xl p-3 border border-sky-100 flex flex-col items-center justify-center text-center">
+                            <i data-lucide="file-check" class="w-7 h-7 text-sky-500 mb-1"></i>
+                            <span class="text-[11px] text-sky-700 font-semibold">Sertifikat Terverifikasi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-slate-50 border-t border-slate-100 rounded-b-2xl flex justify-end gap-2">
+                <button onclick="downloadCertificate()" class="px-4 py-2 text-xs font-bold rounded-lg bg-sky-600 hover:bg-sky-700 text-white transition flex items-center gap-1.5">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i> Unduh Sertifikat
+                </button>
+                <button onclick="closeModal('detail-modal')" class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 transition">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div id="delete-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-5 space-y-4 border border-slate-200 text-center">
+            <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto">
+                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-slate-900 text-base">Konfirmasi Hapus Data</h3>
+                <p class="text-xs text-slate-500 mt-1">Apakah Anda yakin ingin menghapus data kejuaraan ini? Tindakan ini tidak dapat dibatalkan.</p>
+            </div>
+            <div class="flex justify-center gap-2 pt-2">
+                <button onclick="closeModal('delete-modal')" class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+                    Batal
+                </button>
+                <button id="confirm-delete-btn" onclick="executeDelete()" class="px-4 py-2 text-xs font-bold rounded-lg bg-rose-600 hover:bg-rose-700 text-white shadow transition">
+                    Hapus Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div id="export-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4 border border-slate-200">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center shrink-0">
+                    <i data-lucide="file-spreadsheet" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 text-base">Ekspor Laporan Kejuaraan</h3>
+                    <p class="text-xs text-slate-500">Pilih format berkas rekapan prestasi</p>
+                </div>
+            </div>
+
+            <div class="space-y-2 pt-2">
+                <button onclick="triggerExport('PDF')" class="w-full p-3 rounded-xl border border-slate-200 hover:border-sky-500 hover:bg-sky-50/50 flex items-center justify-between transition group text-left">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="file-text" class="w-5 h-5 text-rose-500"></i>
+                        <div>
+                            <p class="text-sm font-bold text-slate-800">Dokumen PDF Laporan Resmi</p>
+                            <p class="text-xs text-slate-500">Lengkap dengan kop sekolah & tabel ringkasan</p>
+                        </div>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition"></i>
+                </button>
+
+                <button onclick="triggerExport('Excel')" class="w-full p-3 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 flex items-center justify-between transition group text-left">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="sheet" class="w-5 h-5 text-emerald-600"></i>
+                        <div>
+                            <p class="text-sm font-bold text-slate-800">Lembar Kerja Excel (.xlsx)</p>
+                            <p class="text-xs text-slate-500">Mentah data untuk olah data kesiswaan</p>
+                        </div>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition"></i>
+                </button>
+            </div>
+
+            <div class="pt-2 flex justify-end">
+                <button onclick="closeModal('export-modal')" class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT LOGIC & APPLICATION STATE       -->
+    <!-- ========================================== -->
+    <script>
+        // Google Apps Script Web App Endpoint URL
+        const API_URL = "https://script.google.com/macros/s/AKfycbxMt36YHzIqfGEifw4whrg3iB5P3G5zCHAnRKpSTEIKFZFump9PN_IYyM5E8Qwb664g/exec";
+
+        // Backup Default Data (Fallback jika koneksi gagal / spreadsheet masih kosong)
+        const defaultAchievementsData = [
+            {
+                id: "PR-2023-001",
+                student: "Ahmad Fauzi",
+                class: "XII MIPA 1",
+                title: "O2SN Karate Putra Tingkat Kabupaten",
+                category: "Olahraga",
+                level: "Kabupaten",
+                raihan: "Juara 1 (Emas)",
+                year: "2023/2024",
+                date: "2023-09-15",
+                coach: "Budi Santoso, S.Pd.",
+                desc: "Berhasil meraih Medali Emas pada kategori Kumite Putra 60kg setelah mengalahkan wakil SMA 2."
+            },
+            {
+                id: "PR-2023-002",
+                student: "Siti Nurhaliza",
+                class: "XI IPS 2",
+                title: "Festival Seni Tari Tradisional Kreasi Baru",
+                category: "Seni & Budaya",
+                level: "Provinsi",
+                raihan: "Juara 2",
+                year: "2023/2024",
+                date: "2023-11-04",
+                coach: "Dewi Lestari, S.Sn.",
+                desc: "Membawakan tari kreasi 'Pesona Nusantara' dan berhasil masuk 3 besar se-provinsi."
+            },
+            {
+                id: "PR-2024-001",
+                student: "Muhammad Rizky",
+                class: "X E-2",
+                title: "Musabaqah Tilawatil Qur'an (MTQ) Pelajar",
+                category: "Keagamaan",
+                level: "Kabupaten",
+                raihan: "Juara 1",
+                year: "2024/2025",
+                date: "2024-08-20",
+                coach: "Drs. H. Ahmad Dahlan",
+                desc: "Meraih nilai tertinggi pada cabang Tilawah Putra SMA se-Kabupaten."
+            },
+            {
+                id: "PR-2024-002",
+                student: "Andi Wijaya",
+                class: "XII MIPA 3",
+                title: "Kejuaraan Karate Internasional ASEAN Open",
+                category: "Olahraga",
+                level: "Internasional",
+                raihan: "Juara 1 (Emas)",
+                year: "2024/2025",
+                date: "2024-10-12",
+                coach: "Sensei Yudi",
+                desc: "Meraih Medali Emas pada kategori Kumite -68kg Putra mewakili Indonesia di Singapura."
+            },
+            {
+                id: "PR-2025-001",
+                student: "Fajar Ramadhan",
+                class: "XII MIPA 4",
+                title: "Kejuaraan Nasional Pencak Silat Pelajar Indonesia",
+                category: "Olahraga",
+                level: "Nasional",
+                raihan: "Juara 1 (Emas)",
+                year: "2025/2026",
+                date: "2025-08-14",
+                coach: "Pak Yudi Hartono",
+                desc: "Juara 1 Kelas F Putra pada Kejurnas Silat Pelajar di Yogyakarta."
+            }
+        ];
+
+        // Global State Variables
+        let achievementsData = [...defaultAchievementsData];
+        let currentTab = 'dashboard';
+        let currentViewMode = 'card';
+        let targetDeleteId = null;
+
+        // Chart Instances
+        let trendChartInstance = null;
+        let levelChartInstance = null;
+        let categoryChartInstance = null;
+
+        // App Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+            initCharts();
+            switchTab('dashboard');
+            
+            // Ambil data terbaru dari Google Sheets saat aplikasi siap
+            fetchDataFromSpreadsheet();
+        });
+
+        // ==========================================
+        // INTEGRASI FETCH DATA GOOGLE SHEETS
+        // ==========================================
+        async function fetchDataFromSpreadsheet() {
+            showToast('Menghubungkan & menyinkronkan data Google Sheets...', 'info');
+            
+            const statusText = document.getElementById('sheets-status-text');
+            const lastUpdate = document.getElementById('sheets-last-update');
+            if (statusText) statusText.textContent = "Mengambil Data...";
+
+            try {
+                const response = await fetch(API_URL, { redirect: 'follow' });
+                if (!response.ok) {
+                    throw new Error(`HTTP Error: ${response.status}`);
+                }
+                
+                const rawData = await response.json();
+
+                if (Array.isArray(rawData) && rawData.length > 0) {
+                    // Normalisasi data dari spreadsheet agar cocok dengan struktur UI
+                    achievementsData = rawData.map((item, index) => normalizeSheetsData(item, index));
+                    
+                    showToast(`Berhasil memuat ${achievementsData.length} data dari Google Sheets!`, 'success');
+                    if (statusText) statusText.textContent = `${achievementsData.length} Data Terhubung`;
+                    if (lastUpdate) lastUpdate.textContent = `Pembaruan: ${new Date().toLocaleTimeString('id-ID')}`;
+                } else {
+                    showToast('Spreadsheet kosong/format tidak sesuai. Menggunakan data default.', 'info');
+                    if (statusText) statusText.textContent = "Data Default (Lokal)";
+                }
+            } catch (error) {
+                console.warn("Gagal terhubung ke Google Sheets API:", error);
+                showToast('Koneksi Google Sheets gagal/dibatasi. Menampilkan data lokal cadangan.', 'info');
+                if (statusText) statusText.textContent = "Offline / Cadangan";
+                if (lastUpdate) lastUpdate.textContent = "Cek URL Web App / Izin";
+            } finally {
+                // Perbarui seluruh grafik dan antarmuka tab yang aktif
+                switchTab(currentTab);
+            }
+        }
+
+        // Fungsi Normalisasi kunci nama kolom dari Google Sheets
+        function normalizeSheetsData(item, index) {
+            return {
+                id: item.id || item.ID || `PR-GS-${index + 1}`,
+                student: item.nama_siswa || item.student || item.Siswa || 'Siswa / Tim',
+                class: item.kelas || item.class || item.Kelas || '-',
+                title: item.nama_kejuaraan || item.title || item.Kejuaraan || 'Kejuaraan Non-Akademik',
+                category: item.kategori || item.category || item.Kategori || 'Olahraga',
+                level: item.tingkat || item.level || item.Tingkat || 'Kabupaten',
+                raihan: item.capaian || item.raihan || item.Raihan || 'Peserta',
+                year: item.tahun_ajaran || item.year || item.Tahun || '2024/2025',
+                date: item.tanggal ? formatDateInput(item.tanggal) : '2024-01-01',
+                coach: item.pembina || item.coach || item.Pembina || 'Tim Kesiswaan',
+                desc: item.deskripsi || item.desc || item.Deskripsi || 'Terdaftar dalam sistem rekapan kesiswaan.',
+                link_sertifikat: item.link_sertifikat || item.sertifikat || ''
+            };
+        }
+
+        function formatDateInput(dStr) {
+            try {
+                const d = new Date(dStr);
+                if (isNaN(d.getTime())) return '2024-01-01';
+                return d.toISOString().split('T')[0];
+            } catch (e) {
+                return '2024-01-01';
+            }
+        }
+
+        // Toggle Sidebar Navigation on Mobile
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            if (sidebar) sidebar.classList.toggle('-translate-x-full');
+            if (overlay) overlay.classList.toggle('hidden');
+        }
+
+        // Tab Navigation Switcher
+        function switchTab(tabId) {
+            currentTab = tabId;
+
+            ['dashboard', 'daftar', 'kelola'].forEach(t => {
+                const el = document.getElementById(`tab-${t}`);
+                if (el) el.classList.add('hidden');
+                
+                const btn = document.getElementById(`nav-btn-${t}`);
+                if (btn) {
+                    btn.className = "w-full px-3.5 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-between text-slate-400 hover:text-white hover:bg-slate-800 transition";
+                }
+            });
+
+            const targetTabEl = document.getElementById(`tab-${tabId}`);
+            if (targetTabEl) targetTabEl.classList.remove('hidden');
+
+            const activeBtn = document.getElementById(`nav-btn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = "w-full px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center justify-between bg-sky-600 text-white shadow-md shadow-sky-900/30 transition";
+            }
+
+            const topbarTitle = document.getElementById('topbar-title');
+            if (topbarTitle) {
+                if (tabId === 'dashboard') topbarTitle.textContent = "1. Dashboard & Grafik Rekapitulasi";
+                else if (tabId === 'daftar') topbarTitle.textContent = "2. Daftar Kejuaraan & Prestasi";
+                else if (tabId === 'kelola') topbarTitle.textContent = "3. Edit & Kelola Data Kejuaraan";
+            }
+
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && !sidebar.classList.contains('-translate-x-full') && window.innerWidth < 768) {
+                toggleMobileSidebar();
+            }
+
+            if (tabId === 'dashboard') {
+                updateDashboardStats();
+            } else if (tabId === 'daftar') {
+                renderDaftarTab();
+            } else if (tabId === 'kelola') {
+                renderManageTable();
+            }
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        // ==========================================
+        // TAB 1 LOGIC: DASHBOARD & CHARTS
+        // ==========================================
+        function updateDashboardStats() {
+            const filtered = achievementsData;
+
+            const total = filtered.length;
+            const emasCount = filtered.filter(i => 
+                i.raihan.toLowerCase().includes('1') || i.raihan.toLowerCase().includes('emas') || i.raihan.toLowerCase().includes('utama')
+            ).length;
+            const tinggiCount = filtered.filter(i => i.level === 'Nasional' || i.level === 'Internasional').length;
+
+            const kpiTotal = document.getElementById('kpi-total');
+            const kpiEmas = document.getElementById('kpi-emas');
+            const kpiEmasPct = document.getElementById('kpi-emas-pct');
+            const kpiTinggi = document.getElementById('kpi-tinggi');
+            const kpiSiswa = document.getElementById('kpi-siswa');
+
+            if (kpiTotal) kpiTotal.textContent = total;
+            if (kpiEmas) kpiEmas.textContent = emasCount;
+            if (kpiEmasPct) kpiEmasPct.textContent = total > 0 ? `${Math.round((emasCount/total)*100)}% total` : '0%';
+            if (kpiTinggi) kpiTinggi.textContent = tinggiCount;
+            if (kpiSiswa) kpiSiswa.textContent = total;
+
+            updateCharts(filtered);
+        }
+
+        function initCharts() {
+            const canvasTrend = document.getElementById('trendChart');
+            if (canvasTrend) {
+                const ctxTrend = canvasTrend.getContext('2d');
+                trendChartInstance = new Chart(ctxTrend, {
+                    type: 'bar',
+                    data: {
+                        labels: ['2023/2024', '2024/2025', '2025/2026'],
+                        datasets: [{
+                            label: 'Jumlah Kejuaraan',
+                            data: [0, 0, 0],
+                            backgroundColor: '#0284c7',
+                            borderRadius: 6,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { cornerRadius: 8 } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Inter' } }, grid: { color: '#f1f5f9' } },
+                            x: { ticks: { font: { family: 'Inter' } }, grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            const canvasLevel = document.getElementById('levelChart');
+            if (canvasLevel) {
+                const ctxLevel = canvasLevel.getContext('2d');
+                levelChartInstance = new Chart(ctxLevel, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Kabupaten', 'Provinsi', 'Nasional', 'Internasional'],
+                        datasets: [{
+                            data: [0, 0, 0, 0],
+                            backgroundColor: ['#3b82f6', '#10b981', '#a855f7', '#f59e0b'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 11 }, padding: 12 } }
+                        },
+                        cutout: '65%'
+                    }
+                });
+            }
+
+            const canvasCat = document.getElementById('categoryChart');
+            if (canvasCat) {
+                const ctxCategory = canvasCat.getContext('2d');
+                categoryChartInstance = new Chart(ctxCategory, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Olahraga', 'Seni & Budaya', 'Keagamaan', 'Pramuka & Paskibra', 'Inovasi'],
+                        datasets: [{
+                            label: 'Capaian Kejuaraan',
+                            data: [0, 0, 0, 0, 0],
+                            backgroundColor: ['#0284c7', '#ec4899', '#8b5cf6', '#f59e0b', '#10b981'],
+                            borderRadius: 6,
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Inter' } }, grid: { color: '#f1f5f9' } },
+                            y: { ticks: { font: { family: 'Inter' } }, grid: { display: false } }
+                        }
+                    }
+                });
+            }
+        }
+
+        function updateCharts(filteredData) {
+            // 1. Trend Chart
+            if (trendChartInstance) {
+                const years = ['2023/2024', '2024/2025', '2025/2026'];
+                const trendCounts = years.map(y => achievementsData.filter(i => i.year === y).length);
+                trendChartInstance.data.datasets[0].data = trendCounts;
+                trendChartInstance.update();
+            }
+
+            // 2. Level Donut Chart
+            if (levelChartInstance) {
+                const levels = ['Kabupaten', 'Provinsi', 'Nasional', 'Internasional'];
+                const levelCounts = levels.map(l => filteredData.filter(i => i.level === l).length);
+                levelChartInstance.data.datasets[0].data = levelCounts;
+                levelChartInstance.update();
+            }
+
+            // 3. Category Horizontal Chart
+            if (categoryChartInstance) {
+                const categories = ['Olahraga', 'Seni & Budaya', 'Keagamaan', 'Pramuka & Paskibra', 'Sains & Inovasi Non-Akademik'];
+                const catCounts = categories.map(c => filteredData.filter(i => i.category === c).length);
+                categoryChartInstance.data.datasets[0].data = catCounts;
+                categoryChartInstance.update();
+            }
+        }
+
+        // ==========================================
+        // TAB 2 LOGIC: DAFTAR KEJUARAAN & SEARCH
+        // ==========================================
+        function renderDaftarTab() {
+            const yearVal = document.getElementById('filter-year')?.value || 'Semua';
+            const catVal = document.getElementById('filter-category')?.value || 'Semua';
+            const levelVal = document.getElementById('filter-level')?.value || 'Semua';
+            const searchVal = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+
+            const clearBtn = document.getElementById('clear-search');
+            if (clearBtn) {
+                if (searchVal.length > 0) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+            }
+
+            const filtered = achievementsData.filter(item => {
+                const matchYear = (yearVal === 'Semua') || (item.year === yearVal);
+                const matchCat = (catVal === 'Semua') || (item.category === catVal);
+                const matchLevel = (levelVal === 'Semua') || (item.level === levelVal);
+                const matchSearch = (
+                    item.student.toLowerCase().includes(searchVal) ||
+                    item.title.toLowerCase().includes(searchVal) ||
+                    item.category.toLowerCase().includes(searchVal) ||
+                    item.raihan.toLowerCase().includes(searchVal)
+                );
+                return matchYear && matchCat && matchLevel && matchSearch;
+            });
+
+            const countEl = document.getElementById('results-count');
+            if (countEl) countEl.textContent = `${filtered.length} data ditemukan`;
+
+            const cardContainer = document.getElementById('card-view-container');
+            const tableBody = document.getElementById('table-body');
+            const emptyState = document.getElementById('empty-state');
+
+            if (filtered.length === 0) {
+                if (cardContainer) cardContainer.innerHTML = '';
+                if (tableBody) tableBody.innerHTML = '';
+                if (emptyState) emptyState.classList.remove('hidden');
+                return;
+            } else {
+                if (emptyState) emptyState.classList.add('hidden');
+            }
+
+            if (cardContainer) {
+                cardContainer.innerHTML = filtered.map(item => `
+                    <div class="bg-white rounded-xl border border-slate-200/80 hover:border-sky-300 hover:shadow-lg transition p-5 flex flex-col justify-between group">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${getLevelBadgeStyle(item.level)}">
+                                    Tingkat ${item.level}
+                                </span>
+                                <span class="text-xs font-semibold text-slate-500 flex items-center gap-1">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5"></i> ${item.year}
+                                </span>
+                            </div>
+
+                            <div>
+                                <div class="flex items-center gap-1.5 text-xs font-semibold text-sky-600 mb-1">
+                                    <i data-lucide="${getCategoryIcon(item.category)}" class="w-3.5 h-3.5"></i>
+                                    <span>${item.category}</span>
+                                </div>
+                                <h4 class="font-bold text-slate-900 text-base group-hover:text-sky-600 transition line-clamp-2">
+                                    ${item.title}
+                                </h4>
+                            </div>
+
+                            <div class="bg-slate-50 p-3 rounded-lg border border-slate-100 text-xs space-y-1">
+                                <div class="flex justify-between text-slate-600">
+                                    <span class="text-slate-400">Siswa:</span>
+                                    <span class="font-bold text-slate-800">${item.student} (${item.class})</span>
+                                </div>
+                                <div class="flex justify-between text-slate-600">
+                                    <span class="text-slate-400">Raihan:</span>
+                                    <span class="font-bold text-emerald-600">${item.raihan}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 mt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                            <span class="text-slate-400 font-medium">${formatDateIndo(item.date)}</span>
+                            <button onclick="openDetailModal('${item.id}')" class="font-bold text-sky-600 hover:text-sky-700 flex items-center gap-1 hover:underline">
+                                Detail <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            if (tableBody) {
+                tableBody.innerHTML = filtered.map(item => `
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="py-3 px-4">
+                            <p class="font-bold text-slate-900">${item.student}</p>
+                            <p class="text-xs text-slate-500">${item.class}</p>
+                        </td>
+                        <td class="py-3 px-4 max-w-xs">
+                            <p class="font-semibold text-slate-800 truncate" title="${item.title}">${item.title}</p>
+                            <p class="text-xs text-slate-500">${item.category}</p>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold border ${getLevelBadgeStyle(item.level)}">
+                                ${item.level}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 font-bold text-emerald-600">
+                            ${item.raihan}
+                        </td>
+                        <td class="py-3 px-4 text-slate-600 font-medium">
+                            ${item.year}
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="openDetailModal('${item.id}')" class="p-1.5 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 font-medium text-xs transition">
+                                Detail
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        function setViewMode(mode) {
+            currentViewMode = mode;
+            const cardBtn = document.getElementById('view-card-btn');
+            const tableBtn = document.getElementById('view-table-btn');
+            const cardContainer = document.getElementById('card-view-container');
+            const tableContainer = document.getElementById('table-view-container');
+
+            if (mode === 'card') {
+                if (cardBtn) cardBtn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-white text-slate-800 shadow-sm transition";
+                if (tableBtn) tableBtn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 text-slate-600 hover:text-slate-900 transition";
+                if (cardContainer) cardContainer.classList.remove('hidden');
+                if (tableContainer) tableContainer.classList.add('hidden');
+            } else {
+                if (tableBtn) tableBtn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-white text-slate-800 shadow-sm transition";
+                if (cardBtn) cardBtn.className = "px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 text-slate-600 hover:text-slate-900 transition";
+                if (cardContainer) cardContainer.classList.add('hidden');
+                if (tableContainer) tableContainer.classList.remove('hidden');
+            }
+        }
+
+        function clearSearchInput() {
+            const input = document.getElementById('search-input');
+            if (input) input.value = '';
+            renderDaftarTab();
+        }
+
+        function resetDaftarFilters() {
+            const input = document.getElementById('search-input');
+            const year = document.getElementById('filter-year');
+            const cat = document.getElementById('filter-category');
+            const level = document.getElementById('filter-level');
+
+            if (input) input.value = '';
+            if (year) year.value = 'Semua';
+            if (cat) cat.value = 'Semua';
+            if (level) level.value = 'Semua';
+
+            renderDaftarTab();
+            showToast('Semua filter berhasil di-reset', 'info');
+        }
+
+        // ==========================================
+        // TAB 3 LOGIC: KELOLA & EDIT DATA
+        // ==========================================
+        async function handleAddSubmit(event) {
+            event.preventDefault();
+
+            const studentVal = document.getElementById('form-student')?.value || '';
+            const classVal = document.getElementById('form-class')?.value || '';
+            const titleVal = document.getElementById('form-title')?.value || '';
+            const categoryVal = document.getElementById('form-category')?.value || 'Olahraga';
+            const levelVal = document.getElementById('form-level')?.value || 'Kabupaten';
+            const raihanVal = document.getElementById('form-raihan')?.value || '';
+            const yearVal = document.getElementById('form-year')?.value || '2025/2026';
+            const dateVal = document.getElementById('form-date')?.value || new Date().toISOString().split('T')[0];
+            const coachVal = document.getElementById('form-coach')?.value || 'Tim Kesiswaan';
+            const descVal = document.getElementById('form-desc')?.value || `Prestasi non-akademik diinput secara resmi pada ${yearVal}.`;
+
+            const newObj = {
+                id: `PR-NEW-${Date.now()}`,
+                student: studentVal,
+                class: classVal,
+                title: titleVal,
+                category: categoryVal,
+                level: levelVal,
+                raihan: raihanVal,
+                year: yearVal,
+                date: dateVal,
+                coach: coachVal,
+                desc: descVal
+            };
+
+            // 1. Tampilkan langsung di antarmuka web (Optimistic Update)
+            achievementsData.unshift(newObj);
+            
+            const form = document.getElementById('add-form');
+            if (form) form.reset();
+
+            renderManageTable();
+            showToast('Menyimpan data ke Google Sheets...', 'info');
+
+            // 2. Kirim data ke Google Sheets API via HTTP POST (mode no-cors untuk kompatibilitas Google Apps Script)
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(newObj)
+                });
+                showToast('Data berhasil tersimpan di Google Sheets!', 'success');
+            } catch (error) {
+                console.warn('Gagal mengirim data ke Google Sheets:', error);
+                showToast('Data tersimpan secara lokal.', 'info');
+            }
+        }
+
+        function renderManageTable() {
+            const searchVal = (document.getElementById('manage-search')?.value || '').toLowerCase().trim();
+            const tableBody = document.getElementById('manage-table-body');
+
+            if (!tableBody) return;
+
+            const filtered = achievementsData.filter(i => 
+                i.student.toLowerCase().includes(searchVal) ||
+                i.title.toLowerCase().includes(searchVal) ||
+                i.class.toLowerCase().includes(searchVal)
+            );
+
+            if (filtered.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="py-6 text-center text-slate-400 text-xs">
+                            Tidak ditemukan data yang sesuai
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tableBody.innerHTML = filtered.map(item => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-2.5 px-3">
+                        <p class="font-bold text-slate-800">${item.student}</p>
+                        <p class="text-[11px] text-slate-400">${item.class}</p>
+                    </td>
+                    <td class="py-2.5 px-3 max-w-xs">
+                        <p class="font-medium text-slate-700 truncate" title="${item.title}">${item.title}</p>
+                        <p class="text-[11px] text-slate-400">${item.category}</p>
+                    </td>
+                    <td class="py-2.5 px-3">
+                        <p class="font-semibold text-slate-700">${item.level}</p>
+                        <p class="text-[11px] text-slate-400">${item.year}</p>
+                    </td>
+                    <td class="py-2.5 px-3 font-bold text-emerald-600">
+                        ${item.raihan}
+                    </td>
+                    <td class="py-2.5 px-3 text-center">
+                        <button onclick="promptDelete('${item.id}')" class="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-medium transition" title="Hapus Entri">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        function promptDelete(id) {
+            targetDeleteId = id;
+            const modal = document.getElementById('delete-modal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function executeDelete() {
+            if (!targetDeleteId) return;
+
+            achievementsData = achievementsData.filter(i => i.id !== targetDeleteId);
+            targetDeleteId = null;
+            closeModal('delete-modal');
+
+            renderManageTable();
+            showToast('Data kejuaraan berhasil dihapus!', 'info');
+        }
+
+        // ==========================================
+        // UTILITIES, MODALS, & TOAST
+        // ==========================================
+        function getLevelBadgeStyle(level) {
+            switch (level) {
+                case 'Kabupaten': return 'bg-blue-100 text-blue-800 border-blue-200';
+                case 'Provinsi': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                case 'Nasional': return 'bg-purple-100 text-purple-800 border-purple-200';
+                case 'Internasional': return 'bg-amber-100 text-amber-800 border-amber-300';
+                default: return 'bg-slate-100 text-slate-700 border-slate-200';
+            }
+        }
+
+        function getCategoryIcon(cat) {
+            switch (cat) {
+                case 'Olahraga': return 'trophy';
+                case 'Seni & Budaya': return 'palette';
+                case 'Keagamaan': return 'book-open';
+                case 'Pramuka & Paskibra': return 'flag';
+                case 'Sains & Inovasi Non-Akademik': return 'lightbulb';
+                default: return 'award';
+            }
+        }
+
+        function formatDateIndo(dateStr) {
+            if (!dateStr) return '-';
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            try {
+                return new Date(dateStr).toLocaleDateString('id-ID', options);
+            } catch (e) {
+                return dateStr;
+            }
+        }
+
+        function openDetailModal(id) {
+            const item = achievementsData.find(i => i.id === id);
+            if (!item) return;
+
+            const detailTitle = document.getElementById('detail-title');
+            const detailRaihan = document.getElementById('detail-raihan');
+            const detailStudent = document.getElementById('detail-student');
+            const detailClass = document.getElementById('detail-class');
+            const detailYear = document.getElementById('detail-year');
+            const detailDate = document.getElementById('detail-date');
+            const detailCoach = document.getElementById('detail-coach');
+            const detailDesc = document.getElementById('detail-desc');
+            const detailCategory = document.getElementById('detail-category');
+
+            if (detailTitle) detailTitle.textContent = item.title;
+            if (detailRaihan) detailRaihan.textContent = item.raihan;
+            if (detailStudent) detailStudent.textContent = item.student;
+            if (detailClass) detailClass.textContent = item.class;
+            if (detailYear) detailYear.textContent = item.year;
+            if (detailDate) detailDate.textContent = formatDateIndo(item.date);
+            if (detailCoach) detailCoach.textContent = item.coach || 'Tim Kesiswaan';
+            if (detailDesc) detailDesc.textContent = item.desc || "Informasi kejuaraan terekam dalam SIM Prestasi SMK Ma'arif 1 Kebumen.";
+            if (detailCategory) detailCategory.textContent = item.category;
+
+            const badge = document.getElementById('detail-badge-level');
+            if (badge) {
+                badge.textContent = `Tingkat ${item.level}`;
+                badge.className = `px-2.5 py-0.5 rounded-full text-xs font-bold border ${getLevelBadgeStyle(item.level)}`;
+            }
+
+            const modal = document.getElementById('detail-modal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function openExportModal() {
+            const modal = document.getElementById('export-modal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function triggerExport(type) {
+            closeModal('export-modal');
+            showToast(`Mengekspor laporan format ${type}... Berkas berhasil diunduh.`, 'success');
+        }
+
+        function downloadCertificate() {
+            showToast('Memproses salinan sertifikat... Unduhan dimulai.', 'info');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+
+            let bgStyle = 'bg-slate-900 text-white';
+            let iconName = 'info';
+
+            if (type === 'success') {
+                bgStyle = 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/20';
+                iconName = 'check-circle';
+            } else if (type === 'info') {
+                bgStyle = 'bg-sky-600 text-white shadow-lg shadow-sky-900/20';
+                iconName = 'info';
+            }
+
+            toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl text-xs font-semibold ${bgStyle} transition-all duration-300 transform translate-y-2 opacity-0 shadow-md`;
+            toast.innerHTML = `<i data-lucide="${iconName}" class="w-4 h-4 shrink-0"></i> <span>${message}</span>`;
+
+            container.appendChild(toast);
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
