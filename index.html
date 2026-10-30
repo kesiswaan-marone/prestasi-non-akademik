@@ -332,6 +332,7 @@
                                 <option value="2023/2024">2023/2024</option>
                                 <option value="2024/2025">2024/2025</option>
                                 <option value="2025/2026">2025/2026</option>
+                                <option value="2026/2027">2026/2027</option>
                             </select>
                         </div>
 
@@ -453,6 +454,7 @@
                                 <div>
                                     <label class="block font-semibold text-slate-700 mb-1">Tahun Ajaran <span class="text-rose-500">*</span></label>
                                     <select id="form-year" required class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:bg-white outline-none transition">
+                                        <option value="2026/2027">2026/2027</option>
                                         <option value="2025/2026">2025/2026</option>
                                         <option value="2024/2025">2024/2025</option>
                                         <option value="2023/2024">2023/2024</option>
@@ -963,10 +965,10 @@
                 trendChartInstance = new Chart(ctxTrend, {
                     type: 'bar',
                     data: {
-                        labels: ['2023/2024', '2024/2025', '2025/2026'],
+                        labels: ['2023/2024', '2024/2025', '2025/2026', '2026/2027'],
                         datasets: [{
                             label: 'Jumlah Kejuaraan',
-                            data: [0, 0, 0],
+                            data: [0, 0, 0, 0],
                             backgroundColor: '#0284c7',
                             borderRadius: 6,
                         }]
@@ -1039,7 +1041,7 @@
         function updateCharts(filteredData) {
             // 1. Trend Chart
             if (trendChartInstance) {
-                const years = ['2023/2024', '2024/2025', '2025/2026'];
+                const years = ['2023/2024', '2024/2025', '2025/2026', '2026/2027'];
                 const trendCounts = years.map(y => achievementsData.filter(i => i.year === y).length);
                 trendChartInstance.data.datasets[0].data = trendCounts;
                 trendChartInstance.update();
@@ -1240,7 +1242,7 @@
             const categoryVal = document.getElementById('form-category')?.value || 'Olahraga';
             const levelVal = document.getElementById('form-level')?.value || 'Kabupaten';
             const raihanVal = document.getElementById('form-raihan')?.value || '';
-            const yearVal = document.getElementById('form-year')?.value || '2025/2026';
+            const yearVal = document.getElementById('form-year')?.value || '2026/2027';
             const dateVal = document.getElementById('form-date')?.value || new Date().toISOString().split('T')[0];
             const coachVal = document.getElementById('form-coach')?.value || 'Tim Kesiswaan';
             const descVal = document.getElementById('form-desc')?.value || `Prestasi non-akademik diinput secara resmi pada ${yearVal}.`;
