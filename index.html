@@ -343,7 +343,7 @@
                                 <option value="Olahraga">Olahraga</option>
                                 <option value="Seni & Budaya">Seni & Budaya</option>
                                 <option value="Keagamaan">Keagamaan</option>
-                                <option value="Pramuka & Paskibra">Pramuka & Paskibra</option>
+                                <option value="Organisasi Kesiswaan."></option>
                                 <option value="Sains & Inovasi Non-Akademik">Sains & Inovasi Non-Akademik</option>
                             </select>
                         </div>
@@ -472,7 +472,7 @@
                                         <option value="Olahraga">Olahraga</option>
                                         <option value="Seni & Budaya">Seni & Budaya</option>
                                         <option value="Keagamaan">Keagamaan</option>
-                                        <option value="Pramuka & Paskibra">Pramuka & Paskibra</option>
+                                        <option value=""></option>
                                         <option value="Sains & Inovasi Non-Akademik">Sains & Inovasi Non-Akademik</option>
                                     </select>
                                 </div>
@@ -1014,7 +1014,7 @@
                 categoryChartInstance = new Chart(ctxCategory, {
                     type: 'bar',
                     data: {
-                        labels: ['Olahraga', 'Seni & Budaya', 'Keagamaan', 'Pramuka & Paskibra', 'Inovasi'],
+                        labels: ['Olahraga', 'Seni & Budaya', 'Keagamaan', '', 'Inovasi'],
                         datasets: [{
                             label: 'Capaian Kejuaraan',
                             data: [0, 0, 0, 0, 0],
@@ -1055,7 +1055,7 @@
 
             // 3. Category Horizontal Chart
             if (categoryChartInstance) {
-                const categories = ['Olahraga', 'Seni & Budaya', 'Keagamaan', 'Pramuka & Paskibra', 'Sains & Inovasi Non-Akademik'];
+                const categories = ['Olahraga', 'Seni & Budaya', 'Keagamaan', 'Organisasi Kesiswaan.', 'Sains & Inovasi Non-Akademik'];
                 const catCounts = categories.map(c => filteredData.filter(i => i.category === c).length);
                 categoryChartInstance.data.datasets[0].data = catCounts;
                 categoryChartInstance.update();
@@ -1371,7 +1371,7 @@
                 case 'Olahraga': return 'trophy';
                 case 'Seni & Budaya': return 'palette';
                 case 'Keagamaan': return 'book-open';
-                case 'Pramuka & Paskibra': return 'flag';
+                case 'Organisasi Kesiswaan.': return 'flag';
                 case 'Sains & Inovasi Non-Akademik': return 'lightbulb';
                 default: return 'award';
             }
