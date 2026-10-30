@@ -281,7 +281,7 @@
                         <div class="flex items-center justify-between mb-4">
                             <div>
                                 <h3 class="font-bold text-slate-800 text-base">Capaian Prestasi per Kategori / Bidang</h3>
-                                <p class="text-xs text-slate-500">Perbandingan perolehan pada Olahraga, Seni, Keagamaan, Organisasi Kesiwaan, dan Inovasi</p>
+                                <p class="text-xs text-slate-500">Perbandingan perolehan pada Olahraga, Seni, Keagamaan, Organisasi Kesiswaan, dan Inovasi</p>
                             </div>
                             <span class="p-2 bg-slate-100 rounded-lg text-slate-600">
                                 <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
@@ -714,7 +714,7 @@
     <!-- ========================================== -->
     <script>
         // Google Apps Script Web App Endpoint URL
-        const API_URL = "https://script.google.com/macros/s/AKfycbxMt36YHzIqfGEifw4whrg3iB5P3G5zCHAnRKpSTEIKFZFump9PN_IYyM5E8Qwb664g/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxMt36YHzIqfGEifw4whrg3iB5P3G5zCHAnRKpSTEIKFZFumpPN_IYyM5E8Qwb664g/exec";
 
         // Backup Default Data (Fallback jika koneksi gagal / spreadsheet masih kosong)
         const defaultAchievementsData = [
@@ -1057,8 +1057,11 @@
 
             // 3. Category Horizontal Chart
             if (categoryChartInstance) {
-                const categories = ['Olahraga', 'Seni & Budaya', 'Keagamaan', 'Organisasi Kesiswaan', 'Sains & Inovasi Non-Akademik'];
-                const catCounts = categories.map(c => filteredData.filter(i => i.category === c).length);
+                // Menggunakan kata kunci agar lebih toleran terhadap perbedaan penulisan di Google Sheets
+                const searchTerms = ['Olahraga', 'Seni', 'Keagamaan', 'Organisasi', 'Inovasi'];
+                const catCounts = searchTerms.map(term => 
+                    filteredData.filter(i => i.category && i.category.includes(term)).length
+                );
                 categoryChartInstance.data.datasets[0].data = catCounts;
                 categoryChartInstance.update();
             }
@@ -1369,14 +1372,13 @@
         }
 
         function getCategoryIcon(cat) {
-            switch (cat) {
-                case 'Olahraga': return 'trophy';
-                case 'Seni & Budaya': return 'palette';
-                case 'Keagamaan': return 'book-open';
-                case 'Organisasi Kesiswaan': return 'flag';
-                case 'Sains & Inovasi Non-Akademik': return 'lightbulb';
-                default: return 'award';
-            }
+            if (!cat) return 'award';
+            if (cat.includes('Olahraga')) return 'trophy';
+            if (cat.includes('Seni')) return 'palette';
+            if (cat.includes('Keagamaan')) return 'book-open';
+            if (cat.includes('Organisasi')) return 'flag';
+            if (cat.includes('Inovasi')) return 'lightbulb';
+            return 'award';
         }
 
         function formatDateIndo(dateStr) {
